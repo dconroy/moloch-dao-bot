@@ -87,11 +87,8 @@ const poll = async function () {
                     }
 
                     safeTweet(truncateTweet(tweetBody, 275), proposal.id)
-
                 }
             }
-
-
         })
         .catch((error) => {
             console.error(error)
