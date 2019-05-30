@@ -21,10 +21,10 @@ const setStorage = async function (key, value) {
 const safeTweet = async function (tweetBody, proposal) {
     let duplicate = await storage.getItem(proposal) // dont tweet about same proposal twice
     if (!duplicate) {
-      //tweetUpdate(tweetBody) dont actually tweet while testing
+        //tweetUpdate(tweetBody) dont actually tweet while testing
         console.log(tweetBody)
         setStorage(proposal, true)
-    
+
     } else {
         console.log("ignoring already tweeted proposal:" + proposal)
     }
@@ -59,9 +59,9 @@ const poll = async function () {
     initStorage()
 
     var latestTweetedProposal = await storage.getItem('last_tweet_id') || 0
-    latestTweetedProposal =  0
+    latestTweetedProposal = 0
     axios.post(url, { //get all proposals in reverse order that have not been aborted or processed
-             query: "{proposals(orderBy: timestamp, orderDirection: desc, where: { aborted: false,processed: false}) {id, timestamp, details, aborted}}"
+            query: "{proposals(orderBy: timestamp, orderDirection: desc, where: { aborted: false,processed: false}) {id, timestamp, details, aborted}}"
 
         })
         .then((res) => {
@@ -85,7 +85,7 @@ const poll = async function () {
                     if (parsedDetails.description) {
                         tweetBody += `${parsedDetails.description}\n`
                     }
-                 
+
                     safeTweet(truncateTweet(tweetBody, 275), proposal.id)
 
                 }
