@@ -75,7 +75,7 @@ const poll = async function () {
                     latestTweetedProposal = proposal.id
                     setStorage('last_tweet_id', latestTweetedProposal)
 
-                    tweetBody = `MolochDAO Proposal ${proposal.id} is now live.\n`
+                    tweetBody = `MolochDAO Proposal ${proposal.id} is now in queue.\n`
                     tweetBody += `https://molochdao.com/proposals/${proposal.id}\n`
 
                     if (parsedDetails.title) {
