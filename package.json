@@ -1,0 +1,20 @@
+{
+  "name": "moloch-twitter",
+  "version": "1.0.0",
+  "description": "Twitter bot to announce Moloch Proposals",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dotenv": "^8.0.0",
+    "node-persist": "^3.0.4",
+    "request": "^2.88.0",
+    "sleep": "^6.1.0",
+    "twitter": "^1.7.1"
+  }
+}
