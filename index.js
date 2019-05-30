@@ -59,7 +59,7 @@ const poll = async function () {
     initStorage()
 
     var latestTweetedProposal = await storage.getItem('last_tweet_id') || 0
-    latestTweetedProposal = 0
+    latestTweetedProposal = 0 // for debug only to force tweet body creation
     axios.post(url, { //get all proposals in reverse order that have not been aborted or processed
             query: "{proposals(orderBy: timestamp, orderDirection: desc, where: { aborted: false,processed: false}) {id, timestamp, details, aborted}}"
 
