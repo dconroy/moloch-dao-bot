@@ -31,10 +31,6 @@ const safeTweet = async function (tweetBody, proposal) {
 
 }
 
-const markProposalTweeted = async function (proposal) {
-    return setStorage(proposal, true)
-}
-
 function safelyParseDetails(details) {
     try {
         return JSON.parse(details)
