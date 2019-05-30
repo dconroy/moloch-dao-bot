@@ -42,9 +42,8 @@ const start = async function (a, b) {
 
     var latestTweet = await storage.getItem('last_tweet_id') || 0;
 
-
     axios.post(url, {
-             query: "{proposals(first: 5, orderBy: timestamp, orderDirection: asc, where: { aborted: false,processed: false}) {id, timestamp, details, aborted}}"
+             query: "{proposals(orderBy: timestamp, orderDirection: desc, where: { aborted: false,processed: false}) {id, timestamp, details, aborted}}"
 
         })
         .then((res) => {
