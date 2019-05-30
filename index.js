@@ -19,11 +19,11 @@ const setStorage = async function (key, value) {
 }
 
 const safeTweet = async function (tweetBody, proposal) {
-    let duplicate = await storage.getItem(proposal)
+    let duplicate = await storage.getItem(proposal) // dont tweet about same proposal twice
     if (!duplicate) {
-        tweetUpdate(tweetBody)
+      //tweetUpdate(tweetBody) dont actually tweet while testing
         console.log(tweetBody)
-        markProposalTweeted(proposal)
+        setStorage(proposal, true)
     
     } else {
         console.log("ignoring already tweeted proposal:" + proposal)
@@ -35,69 +35,14 @@ const markProposalTweeted = async function (proposal) {
     return setStorage(proposal, true)
 }
 
-
-const start = async function (a, b) {
-
-    initStorage()
-
-    var latestTweet = await storage.getItem('last_tweet_id') || 0;
-
-    axios.post(url, {
-             query: "{proposals(orderBy: timestamp, orderDirection: desc, where: { aborted: false,processed: false}) {id, timestamp, details, aborted}}"
-
-        })
-        .then((res) => {
-
-            var myProposals = res.data["data"]["proposals"]
-            for (let key in myProposals) {
-                let value = myProposals[key]
-                parsedDetails = safelyParseDetails(value.details)
-
-                if ((parsedDetails) && parseInt(value.id) > latestTweet) {
-                    latestTweet = value.id
-                    setStorage('last_tweet_id', latestTweet)
-
-                    tweetBody = `MolochDAO Proposal ${value.id} is now live.\n`
-                    tweetBody += `https://molochdao.com/proposals/${value.id}\n`
-
-                    if (parsedDetails.title) {
-                        tweetBody += `${parsedDetails.title}\n`
-                    }
-
-                    if (parsedDetails.description) {
-                        tweetBody += `${parsedDetails.description}\n`
-                    }
-                
-                    
-                    safeTweet(truncater(tweetBody, 275), value.id)
-
-                }
-            }
-
-
-        })
-        .catch((error) => {
-            console.error(error)
-        })
-
-
-
-
-}
-
-function safelyParseDetails(details) { //details = JSON.stringify(details)
-
+function safelyParseDetails(details) {
     try {
-
         return JSON.parse(details)
     } catch (e) {
 
-        //console.log(e)
     }
-
     return null
 }
-
 
 function tweetUpdate(update) {
     twitterClient.post('statuses/update', {
@@ -109,9 +54,54 @@ function tweetUpdate(update) {
     });
 }
 
-function truncater(s, n) {
-    return (s.length > n) ? s.substr(0, n - 1) + '...' : s;
+function truncateTweet(s, n) {
+    return (s.length > n) ? s.substr(0, n - 1) + '...' : s
 };
 
-// Call start
-start();
+const poll = async function () {
+
+    initStorage()
+
+    var latestTweetedProposal = await storage.getItem('last_tweet_id') || 0
+    latestTweetedProposal =  0
+    axios.post(url, { //get all proposals in reverse order that have not been aborted or processed
+             query: "{proposals(orderBy: timestamp, orderDirection: desc, where: { aborted: false,processed: false}) {id, timestamp, details, aborted}}"
+
+        })
+        .then((res) => {
+
+            var myProposals = res.data["data"]["proposals"]
+            for (let key in myProposals) {
+                let proposal = myProposals[key]
+                parsedDetails = safelyParseDetails(proposal.details)
+
+                if ((parsedDetails) && parseInt(proposal.id) > latestTweetedProposal) {
+                    latestTweetedProposal = proposal.id
+                    setStorage('last_tweet_id', latestTweetedProposal)
+
+                    tweetBody = `MolochDAO Proposal ${proposal.id} is now live.\n`
+                    tweetBody += `https://molochdao.com/proposals/${proposal.id}\n`
+
+                    if (parsedDetails.title) {
+                        tweetBody += `${parsedDetails.title}\n`
+                    }
+
+                    if (parsedDetails.description) {
+                        tweetBody += `${parsedDetails.description}\n`
+                    }
+                 
+                    safeTweet(truncateTweet(tweetBody, 275), proposal.id)
+
+                }
+            }
+
+
+        })
+        .catch((error) => {
+            console.error(error)
+        })
+
+
+}
+// Poll Once and quit.
+poll();
